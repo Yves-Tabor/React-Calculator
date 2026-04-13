@@ -13,22 +13,55 @@ import { evaluate } from "mathjs";
 function App() {
     const [display, setDisplay] = useState('0')
     const handleClick = (value) => {
-        const operators = ["+", "-", "*", "/", "%"];
+        const operators = ["+", "-", "*", "÷", "%"];
+        let result = '';
         
         setDisplay((prev) => {
         const lastChar = prev.slice(-1);
-        if(prev === '0' && value !== '.') {
-            return value;
+        if(prev === '0' && (value === '*' || value === '÷' || value === '-' || value === '+' || value === '.' || value === '%')) {
+            return '0' + value;
         }
+        
         if (operators.includes(value) && prev === "") {
           return prev;
         }
 
+        if (operators.includes(value) && operators.includes(lastChar)) {
+          return prev.slice(0, -1) + value;
+        }
+        
+        if (value === "=") {
+            if (!prev) return prev;
 
-      if (operators.includes(value) && operators.includes(lastChar)) {
-        return prev.slice(0, -1) + value;
-      }
+            const lastChar = prev.slice(-1);
+            const operators = ["+", "-", "*", "÷", "%"];
 
+            if (operators.includes(lastChar)) return prev;
+
+            try {
+              const expression = prev
+                .replace(/÷/g, "/");
+
+              result = String(evaluate(expression));
+
+              return result;
+            } catch {
+              return "Error";
+            }
+        }
+        if (value === "AC") {
+          return "0";
+        }
+        if (value === "+/-") {
+          return "-" + prev;
+        }
+        if (value === "%") {
+          return prev + "%";
+        }
+        if (value === ".") {
+          return prev + ".";
+        }
+          
         return prev + value;
         });
   };
@@ -42,7 +75,7 @@ function App() {
             <CButton text="AC" onClick={handleClick} />
             <CButton text="+/-" onClick={handleClick}/>
             <CButton text="%" onClick={handleClick}/>
-            <XButton text="/" onClick={handleClick}/>
+            <XButton text="÷" onClick={handleClick}/>
           </div>
           <div id="third-row" className="row">
             <CButton text="7" onClick={handleClick}/>
